@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2017 Clustree <https://www.clustree.com>
+# Copyright 2017 Clustree <https://www.clustree.com> (Original Code for Kubernetes)
+# Copyright 2022 NeuroForge GmbH & Co. KG <https://neuroforge.de>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +19,13 @@
 from datetime import datetime
 import docker
 from prometheus_client import start_http_server, Counter
+import os
 
 APP_NAME = "Docker events prometheus exporter"
 EVENTS = Counter('docker_events',
                  'Docker events',
                  ['event', 'pod', 'env'])
+PROMETHEUS_EXPORT_PORT = int(os.getenv('PROMETHEUS_EXPORT_PORT', '9000'))
 
 
 def print_timed(msg):
@@ -59,8 +62,8 @@ def watch_events():
 
 
 if __name__ == '__main__':
-    print_timed('Start prometheus client on port 9000')
-    start_http_server(9000, addr='0.0.0.0')
+    print_timed(f'Start prometheus client on port {PROMETHEUS_EXPORT_PORT}')
+    start_http_server(PROMETHEUS_EXPORT_PORT, addr='0.0.0.0')
     try:
         print_timed('Watch docker events')
         watch_events()
