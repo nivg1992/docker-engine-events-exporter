@@ -1,4 +1,4 @@
-FROM python:3.5-alpine
+FROM python:3.10-alpine
 
 ADD docker /opt/events-notifier
 WORKDIR /opt/events-notifier
