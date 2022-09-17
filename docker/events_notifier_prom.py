@@ -20,12 +20,14 @@ from datetime import datetime
 import docker
 from prometheus_client import start_http_server, Counter
 import os
+import platform
 
 APP_NAME = "Docker events prometheus exporter"
-EVENTS = Counter('docker_events',
-                 'Docker events',
-                 ['event', 'pod', 'env'])
+EVENTS = Counter('docker_events_container',
+                 'Docker events Container',
+                 ['status', 'docker_hostname', 'image', 'container_id', 'container_name'])
 PROMETHEUS_EXPORT_PORT = int(os.getenv('PROMETHEUS_EXPORT_PORT', '9000'))
+DOCKER_HOSTNAME = os.getenv('DOCKER_HOSTNAME', platform.node())
 
 
 def print_timed(msg):
@@ -40,25 +42,15 @@ def watch_events():
     client = docker.DockerClient()
     try:
         for event in client.events(decode=True):
-            attributes = event['Actor']['Attributes']
-            if event['Type'] == 'network':
-                continue
-            if 'io.kubernetes.docker.type' in attributes:
-                if attributes['io.kubernetes.container.name'] == 'POD':
-                    continue
-                if event['status'].startswith(('exec_create', 'exec_detach')):
-                    continue
-                msg = '{} on {} ({})'.format(
-                    event['status'].strip(),
-                    attributes['io.kubernetes.pod.name'],
-                    attributes['io.kubernetes.pod.namespace'])
-                print_timed(msg)
-                pod = attributes['io.kubernetes.container.name']
-                if event['status'] == 'oom':
-                    pod = attributes['io.kubernetes.pod.name']
-                EVENTS.labels(event=event['status'].strip(),
-                            pod=pod,
-                            env=attributes['io.kubernetes.pod.namespace']).inc()
+            if event['Type'] == 'container':
+                EVENTS.labels(
+                    **{
+                        'status': event['status'],
+                        'docker_hostname': DOCKER_HOSTNAME,
+                        'image': event['from'],
+                        'container_id': event['Actor']['ID'],
+                        'container_name': event['Actor']['Attributes']['name']
+                    }).inc()
     finally:
         client.close()
 
