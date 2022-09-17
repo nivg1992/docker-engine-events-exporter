@@ -25,7 +25,14 @@ import platform
 APP_NAME = "Docker events prometheus exporter"
 EVENTS = Counter('docker_events_container',
                  'Docker events Container',
-                 ['status', 'docker_hostname', 'image', 'container_id', 'container_name'])
+                 [
+                    'status',
+                    'docker_hostname',
+                    'image',
+                    'container_id',
+                    'container_attributes_name',
+                    'container_attributes_com_docker_stack_namespace'
+                ])
 PROMETHEUS_EXPORT_PORT = int(os.getenv('PROMETHEUS_EXPORT_PORT', '9000'))
 DOCKER_HOSTNAME = os.getenv('DOCKER_HOSTNAME', platform.node())
 
@@ -43,13 +50,19 @@ def watch_events():
     try:
         for event in client.events(decode=True):
             if event['Type'] == 'container':
+                if event['status'].startswith(('exec_create', 'exec_detach')):
+                    # ignore exec_create and exec_detach, these are not helpful
+                    continue
+
+                attributes = event['Actor']['Attributes']
                 EVENTS.labels(
                     **{
-                        'status': event['status'],
+                        'status': event['status'].strip(),
                         'docker_hostname': DOCKER_HOSTNAME,
                         'image': event['from'],
                         'container_id': event['Actor']['ID'],
-                        'container_name': event['Actor']['Attributes']['name']
+                        'container_attributes_name': attributes['name'],
+                        'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', 'unknown')
                     }).inc()
     finally:
         client.close()
