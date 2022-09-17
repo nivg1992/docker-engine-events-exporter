@@ -37,28 +37,30 @@ def print_timed(msg):
 
 
 def watch_events():
-    client = docker.DockerClient(version='auto',
-                                 base_url='unix://var/run/docker.sock')
-    for event in client.events(decode=True):
-        attributes = event['Actor']['Attributes']
-        if event['Type'] == 'network':
-            continue
-        if 'io.kubernetes.docker.type' in attributes:
-            if attributes['io.kubernetes.container.name'] == 'POD':
+    client = docker.DockerClient()
+    try:
+        for event in client.events(decode=True):
+            attributes = event['Actor']['Attributes']
+            if event['Type'] == 'network':
                 continue
-            if event['status'].startswith(('exec_create', 'exec_detach')):
-                continue
-            msg = '{} on {} ({})'.format(
-                event['status'].strip(),
-                attributes['io.kubernetes.pod.name'],
-                attributes['io.kubernetes.pod.namespace'])
-            print_timed(msg)
-            pod = attributes['io.kubernetes.container.name']
-            if event['status'] == 'oom':
-                pod = attributes['io.kubernetes.pod.name']
-            EVENTS.labels(event=event['status'].strip(),
-                          pod=pod,
-                          env=attributes['io.kubernetes.pod.namespace']).inc()
+            if 'io.kubernetes.docker.type' in attributes:
+                if attributes['io.kubernetes.container.name'] == 'POD':
+                    continue
+                if event['status'].startswith(('exec_create', 'exec_detach')):
+                    continue
+                msg = '{} on {} ({})'.format(
+                    event['status'].strip(),
+                    attributes['io.kubernetes.pod.name'],
+                    attributes['io.kubernetes.pod.namespace'])
+                print_timed(msg)
+                pod = attributes['io.kubernetes.container.name']
+                if event['status'] == 'oom':
+                    pod = attributes['io.kubernetes.pod.name']
+                EVENTS.labels(event=event['status'].strip(),
+                            pod=pod,
+                            env=attributes['io.kubernetes.pod.namespace']).inc()
+    finally:
+        client.close()
 
 
 if __name__ == '__main__':
