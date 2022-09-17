@@ -50,8 +50,8 @@ def watch_events():
     try:
         for event in client.events(decode=True):
             if event['Type'] == 'container':
-                if event['status'].startswith(('exec_create', 'exec_detach')):
-                    # ignore exec_create and exec_detach, these are not helpful
+                if event['status'].startswith(('exec_start', 'exec_create', 'exec_detach')):
+                    # ignore exec_start, exec_create and exec_detach, these dont seem helpful
                     continue
 
                 attributes = event['Actor']['Attributes']
