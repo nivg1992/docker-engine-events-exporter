@@ -31,6 +31,7 @@ EVENTS = Counter('docker_events_container',
                     'image',
                     'container_id',
                     'container_attributes_name',
+                    'container_attributes_exitcode',
                     'container_attributes_com_docker_stack_namespace',
                     'container_attributes_com_docker_swarm_node_id',
                     'container_attributes_com_docker_swarm_service_id',
@@ -55,6 +56,7 @@ def watch_events():
     client = docker.DockerClient()
     try:
         for event in client.events(decode=True):
+            print(event)
             if event['Type'] == 'container':
                 # TODO: make it configurable which states to not export
                 if event['status'].startswith(('exec_start', 'exec_create', 'exec_detach')):
@@ -69,6 +71,7 @@ def watch_events():
                         'image': event['from'],
                         'container_id': event['Actor']['ID'],
                         'container_attributes_name': attributes['name'],
+                        'container_attributes_exitcode': attributes.get('exitCode', 'unknown'),
                         'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', 'unknown'),
                         'container_attributes_com_docker_swarm_node_id': attributes.get('com.docker.swarm.node.id', 'unknown'),
                         'container_attributes_com_docker_swarm_service_id': attributes.get('com.docker.swarm.service.id', 'unknown'),
