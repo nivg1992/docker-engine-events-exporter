@@ -31,7 +31,13 @@ EVENTS = Counter('docker_events_container',
                     'image',
                     'container_id',
                     'container_attributes_name',
-                    'container_attributes_com_docker_stack_namespace'
+                    'container_attributes_com_docker_stack_namespace',
+                    'container_attributes_com_docker_swarm_node_id',
+                    'container_attributes_com_docker_swarm_service_id',
+                    'container_attributes_com_docker_swarm_service_name',
+                    'container_attributes_com_docker_swarm_task',
+                    'container_attributes_com_docker_swarm_task_id',
+                    'container_attributes_com_docker_swarm_task_name',
                 ])
 PROMETHEUS_EXPORT_PORT = int(os.getenv('PROMETHEUS_EXPORT_PORT', '9000'))
 DOCKER_HOSTNAME = os.getenv('DOCKER_HOSTNAME', platform.node())
@@ -63,7 +69,13 @@ def watch_events():
                         'image': event['from'],
                         'container_id': event['Actor']['ID'],
                         'container_attributes_name': attributes['name'],
-                        'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', 'unknown')
+                        'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', 'unknown'),
+                        'container_attributes_com_docker_swarm_node_id': attributes.get('com.docker.swarm.node.id', 'unknown'),
+                        'container_attributes_com_docker_swarm_service_id': attributes.get('com.docker.swarm.service.id', 'unknown'),
+                        'container_attributes_com_docker_swarm_service_name': attributes.get('com.docker.swarm.service.name', 'unknown'),
+                        'container_attributes_com_docker_swarm_task': attributes.get('com.docker.swarm.task', 'unknown'),
+                        'container_attributes_com_docker_swarm_task_id': attributes.get('com.docker.swarm.task.id', 'unknown'),
+                        'container_attributes_com_docker_swarm_task_name': attributes.get('com.docker.swarm.task.name', 'unknown'),
                     }).inc()
     finally:
         client.close()
