@@ -71,14 +71,14 @@ def watch_events():
                         'image': event['from'],
                         'container_id': event['Actor']['ID'],
                         'container_attributes_name': attributes['name'],
-                        'container_attributes_exitcode': attributes.get('exitCode', 'unknown'),
-                        'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', 'unknown'),
-                        'container_attributes_com_docker_swarm_node_id': attributes.get('com.docker.swarm.node.id', 'unknown'),
-                        'container_attributes_com_docker_swarm_service_id': attributes.get('com.docker.swarm.service.id', 'unknown'),
-                        'container_attributes_com_docker_swarm_service_name': attributes.get('com.docker.swarm.service.name', 'unknown'),
-                        'container_attributes_com_docker_swarm_task': attributes.get('com.docker.swarm.task', 'unknown'),
-                        'container_attributes_com_docker_swarm_task_id': attributes.get('com.docker.swarm.task.id', 'unknown'),
-                        'container_attributes_com_docker_swarm_task_name': attributes.get('com.docker.swarm.task.name', 'unknown'),
+                        'container_attributes_exitcode': attributes.get('exitCode', ''),
+                        'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', ''),
+                        'container_attributes_com_docker_swarm_node_id': attributes.get('com.docker.swarm.node.id', ''),
+                        'container_attributes_com_docker_swarm_service_id': attributes.get('com.docker.swarm.service.id', ''),
+                        'container_attributes_com_docker_swarm_service_name': attributes.get('com.docker.swarm.service.name', ''),
+                        'container_attributes_com_docker_swarm_task': attributes.get('com.docker.swarm.task', ''),
+                        'container_attributes_com_docker_swarm_task_id': attributes.get('com.docker.swarm.task.id', ''),
+                        'container_attributes_com_docker_swarm_task_name': attributes.get('com.docker.swarm.task.name', ''),
                     }).inc()
     finally:
         client.close()
