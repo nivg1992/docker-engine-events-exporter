@@ -56,7 +56,6 @@ def watch_events():
     client = docker.DockerClient()
     try:
         for event in client.events(decode=True):
-            print(event)
             if event['Type'] == 'container':
                 # TODO: make it configurable which states to not export
                 if event['status'].startswith(('exec_start', 'exec_create', 'exec_detach')):
