@@ -4,6 +4,8 @@
 
 This is a fork of [sbadia/docker-events-exporter](https://github.com/sbadia/docker-events-exporter) with a focus on usage in a Docker/Docker Swarm environment without Kubernetes.
 
+Proudly made by [NeuroForge](https://neuroforge.de/) in Bayreuth, Germany.
+
 ## Use in a Docker Swarm deployment
 
 Deploy:
@@ -41,6 +43,8 @@ scrape_configs:
       type: 'A'
       port: 9000
 ```
+
+A monitoring solution based on the original swarmprom that includes this can be found at our [Swarmsible repo](https://github.com/neuroforgede/swarmsible/tree/master/environments/test/test-swarm/stacks/02_monitoring)
 
 ## Prometheus alerts ?
 
