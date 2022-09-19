@@ -67,9 +67,9 @@ def watch_events():
                     **{
                         'status': event['status'].strip(),
                         'docker_hostname': DOCKER_HOSTNAME,
-                        'image': event['from'],
-                        'container_id': event['Actor']['ID'],
-                        'container_attributes_name': attributes['name'],
+                        'image': event.get('from', ''),
+                        'container_id': event.get('Actor', {}).get('ID', ''),
+                        'container_attributes_name': attributes.get('name', ''),
                         'container_attributes_exitcode': attributes.get('exitCode', ''),
                         'container_attributes_com_docker_stack_namespace': attributes.get('com.docker.stack.namespace', ''),
                         'container_attributes_com_docker_swarm_node_id': attributes.get('com.docker.swarm.node.id', ''),
