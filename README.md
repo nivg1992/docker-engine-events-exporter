@@ -49,7 +49,7 @@ A monitoring solution based on the original swarmprom that includes this can be 
 ## Prometheus alerts ?
 
 Then you can imagine to configure prometheus alerts based on thoses metrics,
-for example about OOM events…
+for example about containers with bad exit codes:
 
 ```yaml
   - alert: Container (Swarm) died/is dying with exit code other than 0
