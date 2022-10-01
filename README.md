@@ -1,5 +1,7 @@
 # Docker engine events exporter (Docker Engine/Swarm)
 
+https://img.shields.io/docker/pulls/neuroforgede/docker-engine-events-exporter.svg
+
 *Docker engine events exporter* expose docker API events ([oom, start, …](https://docs.docker.com/engine/reference/commandline/events/#object-types)) to prometheus metrics.
 
 This is a fork of [sbadia/docker-events-exporter](https://github.com/sbadia/docker-events-exporter) with a focus on usage in a Docker/Docker Swarm environment without Kubernetes.
