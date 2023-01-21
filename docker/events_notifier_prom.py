@@ -22,7 +22,16 @@ from prometheus_client import start_http_server, Counter
 import os
 import platform
 import traceback
+import signal
+from typing import Any
 from time import sleep
+
+def handle_shutdown(signal: Any, frame: Any) -> None:
+    print_timed(f"received signal {signal}. shutting down...")
+    exit(0)
+
+signal.signal(signal.SIGINT, handle_shutdown)
+signal.signal(signal.SIGTERM, handle_shutdown)
 
 APP_NAME = "Docker events prometheus exporter"
 EVENTS = Counter('docker_events_container',
