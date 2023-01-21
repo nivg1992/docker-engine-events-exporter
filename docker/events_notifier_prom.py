@@ -16,11 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import docker
 from prometheus_client import start_http_server, Counter
 import os
 import platform
+import traceback
+from time import sleep
 
 APP_NAME = "Docker events prometheus exporter"
 EVENTS = Counter('docker_events_container',
@@ -42,6 +44,9 @@ EVENTS = Counter('docker_events_container',
                 ])
 PROMETHEUS_EXPORT_PORT = int(os.getenv('PROMETHEUS_EXPORT_PORT', '9000'))
 DOCKER_HOSTNAME = os.getenv('DOCKER_HOSTNAME', platform.node())
+
+RETRY_BACKOFF = int(os.getenv('RETRY_BACKOFF', '10'))
+MAX_RETRIES_IN_ROW = int(os.getenv('MAX_RETRIES_IN_ROW', '10'))
 
 
 def print_timed(msg):
@@ -86,8 +91,26 @@ def watch_events():
 if __name__ == '__main__':
     print_timed(f'Start prometheus client on port {PROMETHEUS_EXPORT_PORT}')
     start_http_server(PROMETHEUS_EXPORT_PORT, addr='0.0.0.0')
-    try:
-        print_timed('Watch docker events')
-        watch_events()
-    except docker.errors.APIError:
-        pass
+    while True:
+        try:
+            print_timed('Watch docker events')
+            watch_events()
+        except docker.errors.APIError:
+            now = datetime.now()
+
+            traceback.print_exc()
+
+            last_failure = last_failure
+            if last_failure < (now - timedelta.seconds(RETRY_BACKOFF * 10)):
+                print_timed("detected docker APIError, but last error was a bit back, resetting failure count.")
+                # last failure was a while back, reset
+                failure_count = 0
+
+            failure_count += 1
+            if failure_count > MAX_RETRIES_IN_ROW:
+                print_timed(f"failed {failure_count} in a row. exiting...")
+                exit(1)
+
+            last_failure = now
+            print_timed(f"waiting {RETRY_BACKOFF} until next cycle")
+            sleep(RETRY_BACKOFF)
