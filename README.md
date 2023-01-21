@@ -17,7 +17,7 @@ version: "3.8"
 
 services:
   docker-engine-events-exporter:
-    image: neuroforgede/docker-engine-events-exporter:0.1
+    image: ghcr.io/neuroforgede/docker-engine-events-exporter:0.1.0
     networks:
       - net
     environment:
@@ -55,7 +55,7 @@ for example about containers with bad exit codes:
 
 ```yaml
   - alert: Container (Swarm) died/is dying with exit code other than 0
-    expr: count by (container_attributes_com_docker_swarm_service_name, container_attributes_exitcode, status) (
+    expr: count by (docker_hostname, container_attributes_com_docker_swarm_service_name, container_attributes_exitcode, status) (
           (
               docker_events_container_total{status=~"die|.*oom.*|.*kill.*", container_attributes_exitcode != "0", container_attributes_exitcode != "" } 
               unless 
