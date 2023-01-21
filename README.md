@@ -17,7 +17,7 @@ version: "3.8"
 
 services:
   docker-engine-events-exporter:
-    image: ghcr.io/neuroforgede/docker-engine-events-exporter:0.1.0
+    image: ghcr.io/neuroforgede/docker-engine-events-exporter:latest
     networks:
       - net
     environment:
